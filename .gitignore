@@ -1,0 +1,32 @@
+WiFi_Log.log
+requirements.txt
+ClientSide/__pycache__/AppClient.cpython-39.pyc
+ClientSide/__pycache__/libclient.cpython-39.pyc
+ClientSide/GetPosition/APs.json
+ClientSide/GetPosition/__pycache__/GetAPInfo.cpython-39.pyc
+ClientSide/GetPosition/__pycache__/GetDistance.cpython-39.pyc
+ClientSide/GetPosition/__pycache__/trilateration.cpython-39.pyc
+ServerSide/ClientMsgs.log
+ServerSide/__pycache__/AppClient.cpython-39.pyc
+ServerSide/__pycache__/libclient.cpython-39.pyc
+ServerSide/__pycache__/libserver.cpython-39.pyc
+wheelhouse/autopep8-1.5.7-py2.py3-none-any.whl
+wheelhouse/comtypes-1.1.10.tar.gz
+wheelhouse/numpy-1.21.2-cp39-cp39-win_amd64.whl
+wheelhouse/pycodestyle-2.8.0-py2.py3-none-any.whl
+wheelhouse/rssi-1.0.2.tar.gz
+wheelhouse/scipy-1.7.1-cp39-cp39-win_amd64.whl
+wheelhouse/toml-0.10.2-py2.py3-none-any.whl
+wheelhouse/win32wifi-0.1.0.zip
+wheelhouse/xmltodict-0.12.0-py2.py3-none-any.whl
+Docs/Layout T8.jpg
+Docs/Layout T9 0m.jpg
+Docs/Layout T9 6m.jpg
+Docs/Layout T10 0m.jpg
+Docs/Layout T10 5m.jpg
+Docs/Layout T11 0m.jpg
+ServerSide/EchoClient.py
+ServerSide/EchoServer.py
+ServerSide/MulticonnClient.py
+ServerSide/MulticonnServer.py
+.vscode/launch.json
