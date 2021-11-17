@@ -8,7 +8,7 @@ def distanceFromRSSI(RSSI, mValue):
     # MeasuredPower -> RSSI a 1 m del AP
     # RSSI -> Leido por el dispositivo
     # n -> un factor entre 2 y 4 dependiente del nivel de interferencias que puede haber
-    #mValue = -35
+    # mValue = -35 -> se puede reemplazar por TxPower en dBm
     n = 2
     if mValue is not None:
         distance = math.pow(10, ((mValue - RSSI)/(10 * n)))

@@ -1,6 +1,6 @@
 #************************************************#
 # App: RunTrack (Client)                         #
-# Version: 0.1.0                                 #
+# Version: 1.0.0                                 #
 # Autor: Gilberto Valenzuela                     #
 # Description: The app scan for networks,        #
 # captures BSSID, SSID and RSSI and send it to   #
@@ -21,8 +21,6 @@ import sys
 try:
     with open('config.json', 'r') as c:
         config = json.load(c)
-
-    print(config)
 except FileNotFoundError:
     print("config.json not found")
     sys.exit()
@@ -31,7 +29,6 @@ if __name__ == "__main__":
     ifaces = getWirelessInterfaces()  # Get Network Interfaces/adapters
     data = ""  # Initialize empty string to store data
     for iface in ifaces:  # Iterate all network adapters
-        # print(iface)
         handle = WlanOpenHandle()  # Assign handle
         # Scan for Networks on the specified interface
         # for i in range(2):
@@ -53,6 +50,5 @@ if __name__ == "__main__":
         with open("WiFi_Log.log", 'a') as log:  # Append logfile
             # Write Logfile with the captured data of the networks
             log.write(data)
-        print(data)  # Print data to console
         start_comm(config["Host"], config["Port"],
                    '', data)  # Send data to server
