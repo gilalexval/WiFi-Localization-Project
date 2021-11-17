@@ -1,7 +1,7 @@
 #************************************************#
 # App: RunTrack (Client)                         #
 # Version: 0.1.0                                 #
-# Autor: Gilberto Valenzuela (SEA/PP-23)         #
+# Autor: Gilberto Valenzuela                     #
 # Description: The app scan for networks,        #
 # captures BSSID, SSID and RSSI and send it to   #
 # a server for processing.                       #
@@ -15,6 +15,17 @@ from AppClient import start_comm
 
 import datetime
 import time
+import json
+import sys
+
+try:
+    with open('config.json', 'r') as c:
+        config = json.load(c)
+
+    print(config)
+except FileNotFoundError:
+    print("config.json not found")
+    sys.exit()
 
 if __name__ == "__main__":
     ifaces = getWirelessInterfaces()  # Get Network Interfaces/adapters
@@ -43,4 +54,5 @@ if __name__ == "__main__":
             # Write Logfile with the captured data of the networks
             log.write(data)
         print(data)  # Print data to console
-        start_comm('10.203.104.209', 5555, '', data)  # Send data to server
+        start_comm(config["Host"], config["Port"],
+                   '', data)  # Send data to server
