@@ -21,25 +21,23 @@ def euclidean_distance(x1, y1, x2, y2):
     p2 = np.array((x2, y2))
     return np.linalg.norm(p1 - p2)
 
-
-locations = [(0, 0), (10, 10), (4, 3)]
-distances = [5, 6, 2]
-x = (1, 1)
-initial_location = x
-
-result = mse(x, locations, distances)
-print(result)
+#result = mse(x, locations, distances)
+# print(result)
 # initial_location: (lat, long)
 # locations: [ (lat1, long1), ... ]
 # distances: [ distance1,     ... ]
-result = minimize(
-    mse,                         # The error function
-    initial_location,            # The initial guess
-    args=(locations, distances),  # Additional parameters for mse
-    method='L-BFGS-B',           # The optimisation algorithm
-    options={
-        'ftol': 1e-5,         # Tolerance
-        'maxiter': 1e+7      # Maximum iterations
-    })
-location = result.x
-print(location)
+
+
+def GetPosition(initial_location, locations, distances):
+    result = minimize(
+        mse,                         # The error function
+        initial_location,            # The initial guess
+        args=(locations, distances),  # Additional parameters for mse
+        method='L-BFGS-B',           # The optimisation algorithm
+        options={
+            'ftol': 1e-5,         # Tolerance
+            'maxiter': 1e+7      # Maximum iterations
+        })
+    location = result.x
+    print(location)
+    return location

@@ -30,3 +30,31 @@ ServerSide/EchoServer.py
 ServerSide/MulticonnClient.py
 ServerSide/MulticonnServer.py
 .vscode/launch.json
+ClientSide/config.json
+ClientSide/GetPosition/ClientMsgs.log
+Docs/APListMRT.json
+Docs/Base Radio Mac List.csv
+Docs/Base Radio Mac List.xlsx
+Docs/csvtojson.py
+Docs/Taller8_Cota0.csv
+Docs/Taller9_Cota0.csv
+Docs/Taller9_Cota6.csv
+Docs/Taller10_Cota0.csv
+Docs/Taller10_Cota5.csv
+Docs/Taller11_ACA-DKA_PA.csv
+Docs/Taller11_ACA-DKA_PB.csv
+Docs/Taller11_Cota0.csv
+req-pyinstaller.txt
+.gitignore
+ClientSide/RunTrack.spec
+ClientSide/__pycache__/AppClient.cpython-38.pyc
+ClientSide/__pycache__/libclient.cpython-38.pyc
+ClientSide/__pycache__/RunTrack.cpython-38.pyc
+ClientSide/__pycache__/RunTrack.cpython-39.pyc
+Release/Client/RunTrack/config.json
+ServerSide/APListMRT.json
+ServerSide/GetPosition/APs.json
+ServerSide/GetPosition/ClientMsgs.log
+ServerSide/GetPosition/__pycache__/GetAPInfo.cpython-39.pyc
+ServerSide/GetPosition/__pycache__/GetDistance.cpython-39.pyc
+ServerSide/GetPosition/__pycache__/trilateration.cpython-39.pyc

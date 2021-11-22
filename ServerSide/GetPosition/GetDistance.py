@@ -1,7 +1,7 @@
 import math
 
 
-def distanceFromRSSI(RSSI, mValue):
+def distanceFromRSSI(RSSI, TxPower):
     # Calculate Distance from AP with the Formula
     #   Distance = 10^((MeasuredPower - RSSI)/(10*n))
     # Donde:
@@ -10,7 +10,7 @@ def distanceFromRSSI(RSSI, mValue):
     # n -> un factor entre 2 y 4 dependiente del nivel de interferencias que puede haber
     # mValue = -35 -> se puede reemplazar por TxPower en dBm
     n = 2
-    if mValue is not None:
-        distance = math.pow(10, ((mValue - RSSI)/(10 * n)))
+    if TxPower is not None:
+        distance = math.pow(10, ((TxPower - RSSI)/(10 * n)))
         return distance
     return None
