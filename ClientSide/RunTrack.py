@@ -1,6 +1,6 @@
 #************************************************#
 # App: RunTrack (Client)                         #
-# Version: 1.0.0                                 #
+# Version: 1.1.0                                 #
 # Autor: Gilberto Valenzuela                     #
 # Description: The app scan for networks,        #
 # captures BSSID, SSID and RSSI and send it to   #
@@ -17,10 +17,21 @@ import datetime
 import time
 import json
 import sys
+import re
 
 try:
     with open('config.json', 'r') as c:
         config = json.load(c)
+    try:
+        pattern = r'(?m)^\s*<add key="TestUnitId"\s*value="(.*)"\s*/>'
+        with open(config["SidisConf"], 'r') as c:
+            result = re.search(pattern, c.read())
+            if result is not None:
+                sender = result.group(1)
+            else:
+                sender = 'DUMMY'
+    except FileNotFoundError:
+        sender = 'DUMMY'
 except FileNotFoundError:
     print("config.json not found")
     sys.exit()
@@ -51,4 +62,4 @@ if __name__ == "__main__":
             # Write Logfile with the captured data of the networks
             log.write(data)
         start_comm(config["Host"], config["Port"],
-                   '', data)  # Send data to server
+                   sender, data)  # Send data to server

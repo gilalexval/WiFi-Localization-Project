@@ -67,12 +67,13 @@ class Message:
         return obj
 
     def _create_message(
-        self, *, content_bytes, content_type, content_encoding
+        self, *, content_bytes, content_type, content_encoding, sender
     ):
         jsonheader = {
             "byteorder": sys.byteorder,
             "content-type": content_type,
             "content-encoding": content_encoding,
+            "sender": sender,
             "content-length": len(content_bytes),
         }
         jsonheader_bytes = self._json_encode(jsonheader, "utf-8")
@@ -145,6 +146,7 @@ class Message:
         content = self.request["content"]
         content_type = self.request["type"]
         content_encoding = self.request["encoding"]
+        sender = self.request["sender"]
         if content_type == "text/json":
             req = {
                 "content_bytes": self._json_encode(content, content_encoding),
@@ -156,6 +158,7 @@ class Message:
                 "content_bytes": content,
                 "content_type": content_type,
                 "content_encoding": content_encoding,
+                "sender": sender,
             }
         message = self._create_message(**req)
         self._send_buffer += message

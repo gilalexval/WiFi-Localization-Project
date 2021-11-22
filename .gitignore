@@ -58,3 +58,8 @@ ServerSide/GetPosition/ClientMsgs.log
 ServerSide/GetPosition/__pycache__/GetAPInfo.cpython-39.pyc
 ServerSide/GetPosition/__pycache__/GetDistance.cpython-39.pyc
 ServerSide/GetPosition/__pycache__/trilateration.cpython-39.pyc
+ClientMsgs.log
+DUMMY.log
+ServerSide/AppServer.py
+ServerSide/CpBuilder_ESSEATMAW01598.log
+ServerSide/logs/CpBuilder_ESSEATMAW01598.log

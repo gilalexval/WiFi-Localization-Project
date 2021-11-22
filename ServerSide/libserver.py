@@ -181,6 +181,7 @@ class Message:
                 "content-length",
                 "content-type",
                 "content-encoding",
+                "sender",
             ):
                 if reqhdr not in self.jsonheader:
                     raise ValueError(f'Missing required header "{reqhdr}".')
@@ -202,7 +203,8 @@ class Message:
                 f'received {self.jsonheader["content-type"]} request from',
                 self.addr,
             )
-            with open("ClientMsgs.log", 'a') as log:  # Append logfile
+            # Append logfile
+            with open("./logs/" + self.jsonheader["sender"] + ".log", 'a') as log:
                 # Write Logfile with the content of the message recieved from the client
                 log.write(self.request.decode("utf-8"))
         # Set selector to listen for write events, we're done reading.

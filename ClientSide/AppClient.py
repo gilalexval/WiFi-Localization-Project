@@ -21,7 +21,8 @@ def create_request(action, value):
         return dict(
             type="binary/custom-client-binary-type",
             encoding="binary",
-            content=bytes(action + value, encoding="utf-8"),
+            content=bytes(value, encoding="utf-8"),
+            sender=action
         )
 
 
