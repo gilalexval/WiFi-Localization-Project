@@ -1,13 +1,15 @@
 import re
 import math
-from trilateration import GetPosition
+import numpy as np
+from scipy.optimize import minimize
+import math
 
 
-def GetBSSIDs():
+def GetBSSIDs(logFilePath):
     radioMAC = []
     APData = {"RadioMAC": [], "RSSI": [], "Distance": [], "Location": []}
     logPattern = r"(?m)^-{25}(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})-{25}\s((?:BSSID:\s.*\sSSID:\s.*\sRSSI:\s.*\n)*(?![^.]))"
-    with open('ClientMsgs.log', 'r') as log:
+    with open(logFilePath, 'r') as log:
         logData = re.search(logPattern, log.read())
     data = logData.group(3)
     BSSIDPattern = r"BSSID:\s*([\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2})\s*SSID:\s*(.*)\s*RSSI:\s*(-\d{1,3})?"
@@ -30,15 +32,15 @@ def GetBSSIDs():
         if signal > bestSignal:
             bestSignal = signal
             listIndex = APData["RSSI"].index(bestSignal)
-    closerAP = APData["Location"][listIndex]
-    position = GetPosition(closerAP, APData["Location"], APData["Distance"])
+    closestAP = APData["Location"][listIndex]
+    position = GetPosition(closestAP, APData["Location"], APData["Distance"])
     return position
 
 
 def GetAPInfo(radMAC):
     pattern = r'(?m)^\s*"(.*)":\s*{[^}]*"Building":[^"]*"(.*)",[^}]*"X":[^"]*"(.*)m",[^}]*"Y":[^"]*"(.*)m",[^}]*"Z":[^"]*"(.*)m",[^}]*"RadioMAC":[^"]*"(' + \
         radMAC + ')",[^}]*"TxPower":[^"]*"(.*)",?[^}]*}'
-    APsDB = "../APListMRT.json"
+    APsDB = "./APListMRT.json"
 
     with open(APsDB, 'r') as APs:
         result = re.search(pattern, APs.read())
@@ -110,3 +112,31 @@ def distanceFromRSSI(RSSI, powerLvl):
 # patron para capturar los datos de los AP detectados por el ciente
 # newp = r"BSSID:\s*([\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2})\s*SSID:\s*(.*)\s*RSSI:\s*(-\d{1,3})?"
 # newm = re.findall(newp, data)
+
+def mse(x, locations, distances):
+    mse = 0.0
+    for location, distance in zip(locations, distances):
+        distance_calculated = euclidean_distance(
+            x[0], x[1], location[0], location[1])
+        mse += math.pow(distance_calculated - distance, 2.0)
+    return mse / len(distances)
+
+
+def euclidean_distance(x1, y1, x2, y2):
+    p1 = np.array((x1, y1))
+    p2 = np.array((x2, y2))
+    return np.linalg.norm(p1 - p2)
+
+
+def GetPosition(initial_location, locations, distances):
+    result = minimize(
+        mse,                         # The error function
+        initial_location,            # The initial guess
+        args=(locations, distances),  # Additional parameters for mse
+        method='L-BFGS-B',           # The optimisation algorithm
+        options={
+            'ftol': 1e-5,         # Tolerance
+            'maxiter': 1e+7      # Maximum iterations
+        })
+    location = result.x
+    return location
