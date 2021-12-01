@@ -1,6 +1,6 @@
 #************************************************#
 # App: RunTrack (Client)                         #
-# Version: 1.1.0                                 #
+# Version: 1.2.0                                 #
 # Autor: Gilberto Valenzuela                     #
 # Description: The app scan for networks,        #
 # captures BSSID, SSID and RSSI and send it to   #
@@ -16,25 +16,30 @@ from AppClient import start_comm
 import datetime
 import time
 import json
-import sys
 import re
+import socket
 
 try:
     with open('config.json', 'r') as c:
         config = json.load(c)
-    try:
-        pattern = r'(?m)^\s*<add key="TestUnitId"\s*value="(.*)"\s*/>'
-        with open(config["SidisConf"], 'r') as c:
-            result = re.search(pattern, c.read())
-            if result is not None:
-                sender = result.group(1)
-            else:
-                sender = 'DUMMY'
-    except FileNotFoundError:
-        sender = 'DUMMY'
 except FileNotFoundError:
-    print("config.json not found")
-    sys.exit()
+    print("config.json not found. Creating one...")
+    config = {"Host": '10.203.104.209', "Port": 55555,
+              "SidisConf": "C:\\SIDIS\\Runtime\\Binaries\\AppSettings.config"}
+    with open('config.json', 'w') as c:
+        json.dump(config, c, indent=4)
+try:
+    pattern = r'(?m)^\s*<add key="TestUnitId"\s*value="(.*)"\s*/>'
+    with open(config["SidisConf"], 'r') as c:
+        result = re.search(pattern, c.read())
+        if result is not None:
+            sender = result.group(1)
+        else:
+            hostname = socket.gethostname()
+            sender = socket.gethostbyname(hostname)
+except FileNotFoundError:
+    hostname = socket.gethostname()
+    sender = socket.gethostbyname(hostname)
 
 if __name__ == "__main__":
     ifaces = getWirelessInterfaces()  # Get Network Interfaces/adapters

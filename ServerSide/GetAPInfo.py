@@ -3,11 +3,15 @@ import math
 import numpy as np
 from scipy.optimize import minimize
 import math
+import os
+import json
 
 
 def GetBSSIDs(logFilePath):
+    clientName, ext = os.path.splitext(os.path.basename(logFilePath))
     radioMAC = []
-    APData = {"RadioMAC": [], "RSSI": [], "Distance": [], "Location": []}
+    APData = {"Name": [], "Hall": [], "RadioMAC": [],
+              "RSSI": [], "Distance": [], "Coordinates": []}
     logPattern = r"(?m)^-{25}(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})-{25}\s((?:BSSID:\s.*\sSSID:\s.*\sRSSI:\s.*\n)*(?![^.]))"
     with open(logFilePath, 'r') as log:
         logData = re.search(logPattern, log.read())
@@ -20,21 +24,56 @@ def GetBSSIDs(logFilePath):
             radioMAC.append(radMAC)
             APInfo = GetAPInfo(radMAC)
             if APInfo is not None:
-                APData["RadioMAC"].append(APInfo.group(6))
+                # APInfo.group(1) = AP Name
+                # APInfo.group(2) = Hall
+                # APInfo.group(3) = Coordinate x
+                # APInfo.group(4) = Coordinate y
+                # APInfo.group(5) = Coordiante z
+                # APInfo.group(6) = Radio MAC
+                # APInfo.group(7) = Tx Power Level
                 rssi = int(item[2])
+                APData["Name"].append(APInfo.group(1))
+                APData["Hall"].append(APInfo.group(2))
+                APData["RadioMAC"].append(APInfo.group(6))
                 APData["RSSI"].append(rssi)
-                APData["Location"].append(
+                APData["Coordinates"].append(
                     (float(APInfo.group(3)), float(APInfo.group(4))))
                 APData["Distance"].append(distanceFromRSSI(
-                    rssi, int(APInfo.group(7))))
+                    rssi, APInfo.group(7)))
     bestSignal = -100
     for signal in APData["RSSI"]:
         if signal > bestSignal:
             bestSignal = signal
             listIndex = APData["RSSI"].index(bestSignal)
-    closestAP = APData["Location"][listIndex]
-    position = GetPosition(closestAP, APData["Location"], APData["Distance"])
-    return position
+    # this are the coordinates of the nearest AP based on which AP has the strongest signal
+    coordinatesClosestAP = APData["Coordinates"][listIndex]
+    # Hall where the closest AP is located
+    hallClosestAP = APData["Hall"][listIndex]
+    # Name of the closest AP
+    nameClosestAP = APData["Name"][listIndex]
+    # position is the calculated position of the Client using trilateration. return
+    position = GetPosition(coordinatesClosestAP,
+                           APData["Coordinates"], APData["Distance"])
+    # returns the Name, Hall and coordinates of the closest AP
+    # return hallClosestAP, nameClosestAP, coordinatesClosestAP, clientName
+    # return position  # returns the calculated position of the client
+    try:
+        with open("positions.json", "r") as pos:
+            positionsData = json.load(pos)
+    except FileNotFoundError:
+        with open("positions.json", "a") as pos:
+            positionsData = {}
+    if hallClosestAP not in positionsData:
+        positionsData[hallClosestAP] = {}
+    if nameClosestAP not in positionsData[hallClosestAP]:
+        positionsData[hallClosestAP][nameClosestAP] = {
+            "Coordinates": coordinatesClosestAP, "Clients": []}
+    if clientName not in positionsData[hallClosestAP][nameClosestAP]["Clients"]:
+        positionsData[hallClosestAP][nameClosestAP]["Clients"].append(
+            clientName)
+    with open("positions.json", "w") as pos:
+        json.dump(positionsData, pos, indent=4)
+    return None
 
 
 def GetAPInfo(radMAC):
@@ -57,21 +96,21 @@ def distanceFromRSSI(RSSI, powerLvl):
     # measuredpower = -35 -> se puede reemplazar por TxPower en dBm
 
     # From Cisco Data Sheet. TxPower is the escale of the power used to radiate the signal. This is not mesured power at 1 m.
-    if powerLvl == 1:
+    if powerLvl == '1':
         TxPower = 23
-    elif powerLvl == 2:
+    elif powerLvl == '2':
         TxPower = 20
-    elif powerLvl == 3:
+    elif powerLvl == '3':
         TxPower = 17
-    elif powerLvl == 4:
+    elif powerLvl == '4':
         TxPower = 14
-    elif powerLvl == 5:
+    elif powerLvl == '5':
         TxPower = 11
-    elif powerLvl == 6:
+    elif powerLvl == '6':
         TxPower = 8
-    elif powerLvl == 7:
+    elif powerLvl == '7':
         TxPower = 5
-    elif powerLvl == 8:
+    elif powerLvl == '8':
         TxPower = 2
     else:
         TxPower = None
@@ -113,11 +152,11 @@ def distanceFromRSSI(RSSI, powerLvl):
 # newp = r"BSSID:\s*([\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2}:[\da-fA-F]{2})\s*SSID:\s*(.*)\s*RSSI:\s*(-\d{1,3})?"
 # newm = re.findall(newp, data)
 
-def mse(x, locations, distances):
+def mse(x, Coordinates, distances):
     mse = 0.0
-    for location, distance in zip(locations, distances):
+    for Coordinates, distance in zip(Coordinates, distances):
         distance_calculated = euclidean_distance(
-            x[0], x[1], location[0], location[1])
+            x[0], x[1], Coordinates[0], Coordinates[1])
         mse += math.pow(distance_calculated - distance, 2.0)
     return mse / len(distances)
 
@@ -128,15 +167,15 @@ def euclidean_distance(x1, y1, x2, y2):
     return np.linalg.norm(p1 - p2)
 
 
-def GetPosition(initial_location, locations, distances):
+def GetPosition(initial_Coordinates, Coordinates, distances):
     result = minimize(
         mse,                         # The error function
-        initial_location,            # The initial guess
-        args=(locations, distances),  # Additional parameters for mse
+        initial_Coordinates,            # The initial guess
+        args=(Coordinates, distances),  # Additional parameters for mse
         method='L-BFGS-B',           # The optimisation algorithm
         options={
             'ftol': 1e-5,         # Tolerance
             'maxiter': 1e+7      # Maximum iterations
         })
-    location = result.x
-    return location
+    Coordinates = result.x
+    return Coordinates
