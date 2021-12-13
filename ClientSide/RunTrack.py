@@ -1,6 +1,6 @@
 #************************************************#
 # App: RunTrack (Client)                         #
-# Version: 1.2.0                                 #
+# Version: 1.2.1                                 #
 # Autor: Gilberto Valenzuela                     #
 # Description: The app scan for networks,        #
 # captures BSSID, SSID and RSSI and send it to   #
@@ -63,7 +63,7 @@ if __name__ == "__main__":
             data += "BSSID: " + bss.bssid + " SSID: " + \
                 bss.ssid.decode(
                     "utf-8") + " RSSI: " + str(bss.rssi) + "\n"  # Write BSSID, SSID and RSSI of the networks
-        with open("WiFi_Log.log", 'a') as log:  # Append logfile
+        with open("WiFi_Log.log", 'w') as log:  # Overwrite logfile
             # Write Logfile with the captured data of the networks
             log.write(data)
         start_comm(config["Host"], config["Port"],
