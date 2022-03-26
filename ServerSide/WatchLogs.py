@@ -6,11 +6,11 @@ from GetAPInfo import GetBSSIDs
 
 
 def on_created(event):
-    print(f"hey, {event.src_path} has been created!")
+    print(f"{event.src_path} has been created!")
 
 
 def on_deleted(event):
-    print(f"what the f**k! Someone deleted {event.src_path}!")
+    print(f"{event.src_path} has been deleted!")
 
 
 def on_modified(event):
@@ -18,7 +18,7 @@ def on_modified(event):
 
 
 def on_moved(event):
-    print(f"ok ok ok, someone moved {event.src_path} to {event.dest_path}")
+    print(f"{event.src_path} has been moved to {event.dest_path}")
 
 
 if __name__ == "__main__":
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     my_event_handler.on_modified = on_modified
     my_event_handler.on_moved = on_moved
 
-    path = "./logs"
+    path = "./logs"  # Move to config file
     go_recursively = True
     my_observer = Observer()
     my_observer.schedule(my_event_handler, path, recursive=go_recursively)

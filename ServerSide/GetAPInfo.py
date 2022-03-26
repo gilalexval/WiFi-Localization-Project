@@ -5,6 +5,7 @@ from scipy.optimize import minimize
 import math
 import os
 import json
+import datetime
 
 
 def GetBSSIDs(logFilePath):  # Recibe la ruta del log con los datos de los APs escaneados
@@ -13,6 +14,9 @@ def GetBSSIDs(logFilePath):  # Recibe la ruta del log con los datos de los APs e
     radioMAC = []  # Inicializa lista vacia para contener las MAC de los AP escaneados y evitar repeticiones
     APData = {"Name": [], "Hall": [], "RadioMAC": [],
               "RSSI": [], "Distance": [], "Coordinates": []}  # Inicializa diccionario de listas que contendran de manera ordenada los datos de cada AP encontrado
+    APsData = {}  # Diccionario de diccionarios, donde cada entrada será un AP identificado
+    relevantCoordinates = []
+    relevantDistances = []
     # Guarda el patron para que la busqueda con expresiones regulares regrese solo el último escaneo contenido en el log. Ignora los escaneos anteriores.
     logPattern = r"(?m)^-{25}(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})-{25}\s((?:BSSID:\s.*\sSSID:\s.*\sRSSI:\s.*\n)*(?![^.]))"
     with open(logFilePath, 'r') as log:  # Abre archivo de log como lectura
@@ -43,75 +47,71 @@ def GetBSSIDs(logFilePath):  # Recibe la ruta del log con los datos de los APs e
                 # Guarda y convierte a entero el RSSI registrado para ese MAC
                 rssi = int(item[2])
                 # Lista en el diccionario el nombre del AP
-                APData["Name"].append(APInfo.group(1))
+                # APData["Name"].append(APInfo.group(1))
+                APsData[APInfo.group(1)] = {}
                 # Lista en el diccionario el taller del AP
-                APData["Hall"].append(APInfo.group(2))
+                # APData["Hall"].append(APInfo.group(2))
+                APsData[APInfo.group(1)]["Hall"] = APInfo.group(2)
                 # Lista en el diccionario la MAC del Radio del AP
-                APData["RadioMAC"].append(APInfo.group(6))
+                # APData["RadioMAC"].append(APInfo.group(6))
+                APsData[APInfo.group(1)]["RadioMAC"] = APInfo.group(6)
                 # Lista en el diccionario el RSSI leido del AP
-                APData["RSSI"].append(rssi)
-                APData["Coordinates"].append(
-                    (float(APInfo.group(3)), float(APInfo.group(4))))  # Lista en el diccionario las coordenadas conocidas del AP
-                APData["Distance"].append(distanceFromRSSI(
-                    rssi, APInfo.group(7)))  # Utiliza el rssi y el Tx Power del AP para calcular la distancia en metros a la que estaba el cliente con respecto al AP al momento de la lectura
-    if APData["RSSI"] != []:  # Verifica que la lista no este vacia. Si esta vacia, significa que no se tiene información del los APs capturados en el escaneo
-        # Inicializa la variable con el valor de RSSI tan bajo que no es posible que algún cliente registre tal señal.
+                # APData["RSSI"].append(rssi)
+                APsData[APInfo.group(1)]["RSSI"] = rssi
+                # APData["Coordinates"].append((float(APInfo.group(3)), float(APInfo.group(4))))  # Lista en el diccionario las coordenadas conocidas del AP
+                APsData[APInfo.group(1)]["Coordinates"] = (
+                    float(APInfo.group(3)), float(APInfo.group(4)))
+                # APData["Distance"].append(distanceFromRSSI(rssi, APInfo.group(7)))  # Utiliza el rssi y el Tx Power del AP para calcular la distancia en metros a la que estaba el cliente con respecto al AP al momento de la lectura
+                APsData[APInfo.group(1)]["Distance"] = distanceFromRSSI(
+                    rssi, APInfo.group(7))
+    # if APData["RSSI"] != []:  # Verifica que la lista no este vacia. Si esta vacia, significa que no se tiene información del los APs capturados en el escaneo
+    if APsData != {}:
+        # # Inicializa la variable con el valor de RSSI tan abajo que no es posible que algún cliente registre tal señal.
         bestSignal = -101
         # Itera los elementos de la lista del diccionario que contiene los RSSI capturados
-        for signal in APData["RSSI"]:
-            if signal > bestSignal:  # Compara el RSSI con el mejor RSSI leido hasta el momento
+        # for signal in APData["RSSI"]:
+        for AP in APsData:
+            # if signal > bestSignal:  # Compara el RSSI con el mejor RSSI leido hasta el momento
+            if APsData[AP]["RSSI"] > bestSignal:
                 # Si la señal que se esta comparando es mejor que la anteriormente guardada, esta la reemplaza
-                bestSignal = signal
+                # bestSignal = signal
+                bestSignal = APsData[AP]["RSSI"]
                 # Obtenemos el indice de la lista el cual contiene la mejor señal registrada
-                listIndex = APData["RSSI"].index(bestSignal)
+                # listIndex = APData["RSSI"].index(bestSignal)
+                nearestAP = AP
         # this are the coordinates of the nearest AP based on which AP has the strongest signal
         # Con el indice de la lista extraemos las coordinadas del AP
-        coordinatesClosestAP = APData["Coordinates"][listIndex]
+        # coordinatesClosestAP = APData["Coordinates"][listIndex]
+        coordinatesClosestAP = APsData[nearestAP]["Coordinates"]
         # Hall where the closest AP is located
         # Con el indice de la lista extraemos el Taller del AP
-        hallClosestAP = APData["Hall"][listIndex]
+        # hallClosestAP = APData["Hall"][listIndex]
+        hallClosestAP = APsData[nearestAP]["Hall"]
         # Name of the closest AP
         # Con el indice de la lista extraemos el nombre del AP
-        nameClosestAP = APData["Name"][listIndex]
+        # nameClosestAP = APData["Name"][listIndex]
+#---------------------------------Aqui necesitamos generar una nueva lista de coordinates y distances----------------------#
+        for AP in APsData:
+            if APsData[AP]["Hall"] == hallClosestAP:
+                relevantCoordinates.append(APsData[AP]["Coordinates"])
+                relevantDistances.append(APsData[AP]["Distance"])
         # position is the calculated position of the Client using trilateration. return
+        # position = GetPosition(coordinatesClosestAP, APData["Coordinates"], APData["Distance"])
         position = GetPosition(coordinatesClosestAP,
-                               APData["Coordinates"], APData["Distance"])
-        # returns the Name, Hall and coordinates of the closest AP
-        # return hallClosestAP, nameClosestAP, coordinatesClosestAP, clientName
-        # return position  # returns the calculated position of the client
-        try:
-            # Abre el fichero positions.json, que contiene una relación de Talleres, APs y Clientes
-            with open("positions.json", "r") as pos:
-                # Carga el contenido formato json en una estructura de python
-                positionsData = json.load(pos)
-        except FileNotFoundError:  # Si no existe el fichero
-            with open("positions.json", "a") as pos:  # Crea el fichero vacio positions.json
-                positionsData = {}  # inicializa un diccionario como estructura base para le fichero json
-        # Si el Taller del AP que se calculó es el mas cercano al cliente no está dentro de la estructura
-        if hallClosestAP not in positionsData:
-            # Crea un diccionario vacío dentro con el nombre de taller como Clave
-            positionsData[hallClosestAP] = {}
-        # Si el AP que se calculó es el mas cercano al cliente no está dentro de la estructura correspondiente al taller previamente especificado
-        if nameClosestAP not in positionsData[hallClosestAP]:
-            positionsData[hallClosestAP][nameClosestAP] = {
-                "Coordinates": coordinatesClosestAP, "Clients": []}  # Crea un diccionario dentro del taller con el nombre del AP como clave y los parametros coordinates para guardar la ubbicación del AP y una lista clients que contendrá los clientes conectados a este AP
-        # Si el cliente no se encuentra en la lista de clientes del AP en el taller especificado
-        if clientName not in positionsData[hallClosestAP][nameClosestAP]["Clients"]:
-            positionsData[hallClosestAP][nameClosestAP]["Clients"].append(
-                clientName)  # Agregar el cliente a la lista de clientes del AP
-        # Abre el fichero que contiene la relacion de Talleres, APs y Clientes en modo de lectura
-        with open("positions.json", "w") as pos:
-            # Sobre escribe la información actualizada
-            json.dump(positionsData, pos, indent=4)
-        return None  # Regresa None para indicar que el proceso ha terminado
+                               relevantCoordinates, relevantDistances)
+        # returns the calculated position of the client
+        # Create/update logfile
+        CreateFile(clientName, hallClosestAP)
+        return WritePositions(clientName.upper(), hallClosestAP, tuple(position))
     # Regresa este mensaje solo cuando no existe ningún registro de AP conocido
     return "No registered AP found for " + clientName
 
 
 def GetAPInfo(radMAC):
-    pattern = r'(?m)^\s*"(.*)":\s*{[^}]*"Building":[^"]*"(.*)",[^}]*"X":[^"]*"(.*)m",[^}]*"Y":[^"]*"(.*)m",[^}]*"Z":[^"]*"(.*)m",[^}]*"RadioMAC":[^"]*"(' + \
+    pattern = r'(?m)^\s*"(.*)":\s*{[^}]*"FloorOrOutdoorArea":[^"]*"(.*)",[^}]*"X":\s*([\d.]*),[^}]*"Y":\s*([\d.]*),[^}]*"RadioMAC":[^"]*"(' + \
         radMAC + ')",[^}]*"TxPower":[^"]*"(.*)",?[^}]*}'
-    APsDB = "./APListMRT.json"
+    # Este parametro se debe pasar a un archivo config
+    APsDB = "./AP_List_With_Positions_Real.json"
 
     with open(APsDB, 'r') as APs:
         result = re.search(pattern, APs.read())
@@ -148,7 +148,7 @@ def distanceFromRSSI(RSSI, powerLvl):
         TxPower = None
     n = 2
     if TxPower is not None:
-        # Since we don't have the mesured power at 1 m the original formula gives a very large distance, because the TxPower used here is the really the power used to feed the antena. Virtually this TxPower it should be the power we get at 0m, but it is imposible to get or mesure, thats why the reference distance is usually 1m. For this, the reference distance should be near to 0 (0.001 works in this case) and it should multiply the rest of the expresion.See the path loss model to get deeper in the math behind it.
+        # Since we don't have the mesured power at 1 m the original formula gives a very large distance, because the TxPower used here is the power used to feed the antena. Virtually this TxPower it should be the power we get at 0m, but it is imposible to get or mesure, thats why the reference distance is usually 1m. For this, the reference distance should be near to 0 (0.001 works in this case) and it should multiply the rest of the expresion.See the path loss model to get deeper in the math behind it.
         distance = (math.pow(10, ((TxPower - RSSI)/(10 * n)))) * 0.001
         return distance
     return None
@@ -211,3 +211,59 @@ def GetPosition(initial_Coordinates, Coordinates, distances):
         })
     Coordinates = result.x
     return Coordinates
+
+
+def CreateFile(clientName, hallClosestAP):
+    try:
+        # Abre el fichero positions.json, que contiene una relación de Talleres, APs y Clientes
+        with open("positions.json", "r") as pos:
+            # Carga el contenido formato json en una estructura de python
+            positionsData = json.load(pos)
+    except FileNotFoundError:  # Si no existe el fichero
+        with open("positions.json", "a") as pos:  # Crea el fichero vacio positions.json
+            positionsData = {}  # inicializa un diccionario como estructura base para le fichero json
+    for hall in positionsData:
+        if clientName in positionsData[hall]["Clients"]:
+            if hall != hallClosestAP:
+                positionsData[hall]["Clients"].remove(clientName)
+            elif hall == hallClosestAP:
+                return None
+    # Si el Taller del AP que se calculó es el mas cercano al cliente no está dentro de la estructura
+    if hallClosestAP not in positionsData:
+        # Crea un diccionario vacío dentro de la estrutura con el nombre de taller como Clave y una lista Clients para almacenar los clientes.
+        positionsData[hallClosestAP] = {"Clients": []}
+    # Si el AP que se calculó es el mas cercano al cliente no está dentro de la estructura correspondiente al taller previamente especificado
+    # if nameClosestAP not in positionsData[hallClosestAP]:
+        # positionsData[hallClosestAP][nameClosestAP] = {"Coordinates": coordinatesClosestAP, "Clients": []}  # Crea un diccionario dentro del taller con el nombre del AP como clave y los parametros coordinates para guardar la ubbicación del AP y una lista clients que contendrá los clientes conectados a este AP
+        # Si el cliente no se encuentra en la lista de clientes del taller especificado
+    if clientName not in positionsData[hallClosestAP]["Clients"]:
+        # Agregar el cliente a la lista de clientes del Taller
+        positionsData[hallClosestAP]["Clients"].append(clientName)
+    # Abre el fichero que contiene la relacion de Talleres, APs y Clientes en modo de lectura
+    with open("positions.json", "w") as pos:
+        # Sobre escribe la información actualizada
+        json.dump(positionsData, pos, indent=4)
+    return None  # Regresa None para indicar que el proceso ha terminado
+
+
+def WritePositions(clientName, hallClosestAP, position):
+    try:
+        with open("ClientPosition.json", "r") as pos:
+            currentData = json.load(pos)
+    except FileNotFoundError:
+        with open("ClientPosition.json", "a") as pos:
+            currentData = {}
+    if clientName in currentData:
+        currentData[clientName]["Timestamp"] = datetime.datetime.now().strftime(
+            '%Y-%m-%d %H:%M:%S')
+        currentData[clientName]["Taller"] = hallClosestAP
+        currentData[clientName]["Coordenadas"] = position
+    else:
+        currentData[clientName] = {
+            "Timestamp": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "Taller": hallClosestAP,
+            "Coordenadas": position
+        }
+    with open("ClientPosition.json", "w") as pos:
+        json.dump(currentData, pos, indent=4)
+    return clientName + " updated!"

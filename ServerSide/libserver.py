@@ -4,11 +4,11 @@ import json
 import io
 import struct
 
-request_search = {
-    "morpheus": "Follow the white rabbit. \U0001f430",
-    "ring": "In the caves beneath the Misty Mountains. \U0001f48d",
-    "\U0001f436": "\U0001f43e Playing ball! \U0001f3d0",
-}
+# request_search = {
+#    "morpheus": "Follow the white rabbit. \U0001f430",
+#    "ring": "In the caves beneath the Misty Mountains. \U0001f48d",
+#    "\U0001f436": "\U0001f43e Playing ball! \U0001f3d0",
+# }
 
 
 class Message:
@@ -88,21 +88,21 @@ class Message:
         message = message_hdr + jsonheader_bytes + content_bytes
         return message
 
-    def _create_response_json_content(self):
-        action = self.request.get("action")
-        if action == "search":
-            query = self.request.get("value")
-            answer = request_search.get(query) or f'No match for "{query}".'
-            content = {"result": answer}
-        else:
-            content = {"result": f'Error: invalid action "{action}".'}
-        content_encoding = "utf-8"
-        response = {
-            "content_bytes": self._json_encode(content, content_encoding),
-            "content_type": "text/json",
-            "content_encoding": content_encoding,
-        }
-        return response
+   # def _create_response_json_content(self):
+        #action = self.request.get("action")
+        # if action == "search":
+        #    query = self.request.get("value")
+        #    answer = request_search.get(query) or f'No match for "{query}".'
+        #    content = {"result": answer}
+        # else:
+        #    content = {"result": f'Error: invalid action "{action}".'}
+        #content_encoding = "utf-8"
+        # response = {
+        #    "content_bytes": self._json_encode(content, content_encoding),
+        #    "content_type": "text/json",
+        #    "content_encoding": content_encoding,
+        # }
+        # return response
 
     def _create_response_binary_content(self):
         response = {
@@ -211,11 +211,11 @@ class Message:
         self._set_selector_events_mask("w")
 
     def create_response(self):
-        if self.jsonheader["content-type"] == "text/json":
-            response = self._create_response_json_content()
-        else:
-            # Binary or unknown content-type
-            response = self._create_response_binary_content()
+        # if self.jsonheader["content-type"] == "text/json":
+        #    response = self._create_response_json_content()
+        # else:
+        # Binary or unknown content-type
+        response = self._create_response_binary_content()
         message = self._create_message(**response)
         self.response_created = True
         self._send_buffer += message

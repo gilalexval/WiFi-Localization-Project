@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
-import sys
 import socket
 import selectors
 import traceback
-
+import json
 import libserver
+
+try:
+    with open('config.json', 'r') as c:
+        config = json.load(c)
+except FileNotFoundError:
+    print("config.json not found. Creating one...")
+    config = {"Host": '127.0.0.1', "Port": 55555}
+    with open('config.json', 'w') as c:
+        json.dump(config, c, indent=4)
 
 sel = selectors.DefaultSelector()
 
@@ -22,7 +30,7 @@ def accept_wrapper(sock):
 #    print("usage:", sys.argv[0], "<host> <port>")
 #    sys.exit(1)
 
-host, port = "127.0.0.1", 55555
+host, port = config["Host"], config["Port"]
 lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Avoid bind() exception: OSError: [Errno 48] Address already in use
 lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -34,7 +42,7 @@ sel.register(lsock, selectors.EVENT_READ, data=None)
 
 try:
     while True:
-        events = sel.select(timeout=5)
+        events = sel.select(timeout=0)
         for key, mask in events:
             if key.data is None:
                 accept_wrapper(key.fileobj)
