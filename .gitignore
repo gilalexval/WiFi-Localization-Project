@@ -149,3 +149,22 @@ ServerSide/VCG/TALLER 9 MONTAJE-EG-L9-GVC.PNG
 ServerSide/VCG/TALLER 10 MONTAJE-E1-L9-GVC.png
 ServerSide/VCG/TALLER 10 MONTAJE-EG-L9-GVC.PNG
 ServerSide/VCG/TALLER 11 MONTAJE-EG-L9-GVC.png
+ServerSide/simpleGUI.py
+ServerSide/GUIScatter.py
+ServerSide/GUI.py
+ServerSide/runTrackView.exe
+ServerSide/runTrackView.spec
+ServerSide/__pycache__/runTrackView.cpython-39.pyc
+ServerSide/build/runTrackView/Analysis-00.toc
+ServerSide/build/runTrackView/base_library.zip
+ServerSide/build/runTrackView/EXE-00.toc
+ServerSide/build/runTrackView/PKG-00.toc
+ServerSide/build/runTrackView/PYZ-00.pyz
+ServerSide/build/runTrackView/PYZ-00.toc
+ServerSide/build/runTrackView/runTrackView.exe.manifest
+ServerSide/build/runTrackView/runTrackView.pkg
+ServerSide/build/runTrackView/Tree-00.toc
+ServerSide/build/runTrackView/Tree-01.toc
+ServerSide/build/runTrackView/Tree-02.toc
+ServerSide/build/runTrackView/warn-runTrackView.txt
+ServerSide/build/runTrackView/xref-runTrackView.html

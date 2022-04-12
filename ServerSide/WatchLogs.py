@@ -6,7 +6,7 @@ from GetAPInfo import GetBSSIDs
 
 
 def on_created(event):
-    print(f"{event.src_path} has been created!")
+    print(GetBSSIDs(os.path.abspath(event.src_path)))
 
 
 def on_deleted(event):

@@ -130,7 +130,7 @@ while True:
     print(event)
     print(values)
     if event == None or event == sg.WIN_CLOSED:
-        exit()
+        break
     elif event == "-HALLSEARCH-":
         if values["-HALLSEARCH-"]:
             window["-SEARCH-"].update(disabled=True)
@@ -148,3 +148,4 @@ while True:
             targetHall = search(searchInfo, "ClientSearch")
         window["-TITLE-"].update(targetHall)
     fig_canvas_agg.draw()
+window.close()
