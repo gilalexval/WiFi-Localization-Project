@@ -1,6 +1,6 @@
 #************************************************#
 # App: RunTrackView                              #
-# Version: 1.0.0                                 #
+# Version: 1.0.1                                 #
 # Autor: Gilberto Valenzuela                     #
 # Description: Visualizador de los datos de      #
 # localización de los equipos                    #
@@ -47,6 +47,7 @@ def search(searchInfo, searchMode):
                         currentData[clientToFind]["Coordenadas"][1], marker='o')  # Show only the desired client
         else:
             print("Client {} not found".format(searchInfo))
+            return "", "Failed"
     elif searchMode == "HallSearch":
         targetHall = searchInfo
         plt.scatter(plant["Talleres_CiscoPrime"][targetHall]["x"], plant["Talleres_CiscoPrime"]
@@ -64,7 +65,7 @@ def search(searchInfo, searchMode):
                             [1], plant["Talleres_CiscoPrime"][targetHall]["AjusteEjes"][2], plant["Talleres_CiscoPrime"][targetHall]["AjusteEjes"][3]))
 # plt.show() #Se usa cuando mostramos el gráfico directamente en matplotlib.
     # regresamos el taller objetivo que debe mostrar en el titulo del gráfico
-    return targetHall
+    return targetHall, "Success"
 
 # ------------------------------- Beginning of Matplotlib helper code -----------------------
 
@@ -142,10 +143,15 @@ while True:
         if values["-HALLSEARCH-"]:
             print("buscando taller {}".format(values["-TALLER-"]))
             searchInfo = values["-TALLER-"]
-            targetHall = search(searchInfo, "HallSearch")
-        if not values["-HALLSEARCH-"]:
+            targetHall, returnCode = search(searchInfo, "HallSearch")
+        elif not values["-HALLSEARCH-"]:
             searchInfo = values["-SEARCH-"].upper()
-            targetHall = search(searchInfo, "ClientSearch")
-        window["-TITLE-"].update(targetHall)
-    fig_canvas_agg.draw()
+            targetHall, returnCode = search(searchInfo, "ClientSearch")
+        else:
+            print("Problema con el estado del CheckBox Buscar por Taller")
+        if returnCode == "Success":
+            window["-TITLE-"].update(targetHall)
+            fig_canvas_agg.draw()
+        else:
+            pass
 window.close()
