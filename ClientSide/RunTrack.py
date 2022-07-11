@@ -1,11 +1,12 @@
 #************************************************#
 # App: RunTrack (Client)                         #
-# Version: 1.2.1                                 #
+# Version: 1.2.2                                 #
 # Autor: Gilberto Valenzuela                     #
 # Description: The app scan for networks,        #
 # captures BSSID, SSID and RSSI and send it to   #
 # a server for processing.                       #
 #************************************************#
+
 from win32wifi.Win32Wifi import getWirelessInterfaces
 from win32wifi.Win32Wifi import getWirelessNetworkBssList
 from win32wifi.Win32NativeWifiApi import WlanScan
@@ -18,6 +19,7 @@ import time
 import json
 import re
 import socket
+import sys
 
 try:
     with open('config.json', 'r') as c:
@@ -49,13 +51,31 @@ if __name__ == "__main__":
         # Scan for Networks on the specified interface
         # for i in range(2):
         # WlanScan returns inmediately. But the scan is done by the WiFi driver in the background
-        WlanScan(handle, iface.guid)
+        try:
+            WlanScan(handle, iface.guid)
+        except:
+            with open("Err.log", "a") as errlog:
+                errlog.write(datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S') + " WlanScan(handle, iface.guid) Failed" + "\n")
+            WlanCloseHandle(handle)  # Close Handle
+            sys.exit()
         # Windows Systems are suppoused to finish a scan in under 4s. I set 5s just to be sure.
         time.sleep(5)
-        WlanCloseHandle(handle)  # Close Handle
+        try:
+            WlanCloseHandle(handle)  # Close Handle
+        except:
+            with open("Err.log", "a") as errlog:
+                errlog.write(datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S') + " WlanCloseHandle(handle) Failed" + "\n")
         # Get all information captures of all networks scanned
         # Returns the saved available list of networks. It performs an extra WlanScan but we don´t get the information from that scan but from the previous one. If this only return one element. The previous Wlan Scan didn´t finish.
-        bsss = getWirelessNetworkBssList(iface)
+        try:
+            bsss = getWirelessNetworkBssList(iface)
+        except:
+            with open("Err.log", "a") as errlog:
+                errlog.write(datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S') + " getWirelessNetworkBssList(iface) Failed" + "\n")
+            sys.exit()
         data += "\n" + "-" * 25 + \
             datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + \
             "-" * 25 + "\n"  # Write a time stamp

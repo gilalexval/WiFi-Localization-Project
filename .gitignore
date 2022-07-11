@@ -168,3 +168,29 @@ ServerSide/build/runTrackView/Tree-01.toc
 ServerSide/build/runTrackView/Tree-02.toc
 ServerSide/build/runTrackView/warn-runTrackView.txt
 ServerSide/build/runTrackView/xref-runTrackView.html
+build/RunTrack/Analysis-00.toc
+build/RunTrack/base_library.zip
+build/RunTrack/EXE-00.toc
+build/RunTrack/PKG-00.toc
+build/RunTrack/PYZ-00.pyz
+build/RunTrack/PYZ-00.toc
+build/RunTrack/RunTrack.exe.manifest
+build/RunTrack/RunTrack.pkg
+build/RunTrack/Tree-00.toc
+build/RunTrack/Tree-01.toc
+build/RunTrack/Tree-02.toc
+build/RunTrack/warn-RunTrack.txt
+build/RunTrack/xref-RunTrack.html
+ClientSide/Err.log
+Release/Client/RunTrack/Err.log
+Docs/Base Radio Mac List 2.csv
+Docs/T08 - ApPositions.csv
+Docs/T09 - ApPositions.csv
+Docs/T10 - ApPositions.csv
+Docs/T11 - ApPositions.csv
+Docs/old/Taller8_Cota0.csv
+Docs/old/Taller9_Cota0.csv
+Docs/old/Taller10_Cota0.csv
+Docs/old/Taller11_Cota0.csv
+Docs/AP_List.json
+config.json
