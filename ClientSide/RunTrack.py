@@ -1,6 +1,6 @@
 #************************************************#
 # App: RunTrack (Client)                         #
-# Version: 1.2.2                                 #
+# Version: 1.2.3                                 #
 # Autor: Gilberto Valenzuela                     #
 # Description: The app scan for networks,        #
 # captures BSSID, SSID and RSSI and send it to   #
