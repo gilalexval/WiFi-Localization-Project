@@ -6,8 +6,8 @@ VSVersionInfo(
   ffi=FixedFileInfo(
     # filevers and prodvers should be always a tuple with four items: (1, 2, 3, 4)
     # Set not needed items to zero 0.
-    filevers=(1, 2, 2, 0),
-    prodvers=(1, 2, 2, 0),
+    filevers=(1, 2, 3, 0),
+    prodvers=(1, 2, 3, 0),
     # Contains a bitmask that specifies the valid bits 'flags'r
     mask=0x3f,
     # Contains a bitmask that specifies the Boolean attributes of the file.
@@ -33,14 +33,14 @@ VSVersionInfo(
         [StringStruct('Comments', 'Application to track Clients using Network information'),
         StringStruct('CompanyName', ''),
         StringStruct('FileDescription', 'RunTrackClient Application'),
-        StringStruct('FileVersion', '1.2.2'),
+        StringStruct('FileVersion', '1.2.3'),
         StringStruct('InternalName', 'RunTrack.exe'),
         StringStruct('LegalCopyright', ''),
         StringStruct('LegalTrademarks', ''),
         StringStruct('OriginalFilename', 'RunTrack.exe'),
         StringStruct('ProductName', 'RunTrack'),
-        StringStruct('ProductVersion', '1.2.2'),
-        StringStruct('Assembly Version', '1.2.2')])
+        StringStruct('ProductVersion', '1.2.3'),
+        StringStruct('Assembly Version', '1.2.3')])
       ])
   ]
 )

@@ -1,1 +1,0 @@
-C:\Users\UU067ZU\AppData\Local\Programs\Python\Python38-32\Scripts\pyinstaller.exe --onefile --noconsole --version-file .\ClientSide\version.txt --distpath .\Release\Client\RunTrack\ .\ClientSide\RunTrack.py

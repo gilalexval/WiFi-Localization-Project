@@ -1,3 +1,6 @@
+#El codigo de libclient es una copia del ejemplo de Application Client en:
+#https://realpython.com/python-sockets/
+
 import sys
 import selectors
 import json

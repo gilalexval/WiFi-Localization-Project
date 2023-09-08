@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
+#El codigo de AppClient es una copia del ejemplo de Application Client en:
+#https://realpython.com/python-sockets/
+
 import socket
 import selectors
 import traceback
 
+#AppClient depende de la libreria libclient
+#El codigo de libclient es una copia del ejemplo de Application Client en:
+#https://realpython.com/python-sockets/
 import libclient
 
 sel = selectors.DefaultSelector()
@@ -36,6 +42,9 @@ def start_connection(host, port, request):
     sel.register(sock, events, data=message)
 
 
+#En el ejemplo original, el script se ejecutaba desde la linea de comandos y aceptaba los argumentos
+#host port actio y value. Se modifica para que la función se pueda llamar desde otra 
+
 # if len(sys.argv) != 5:
 #    print("usage:", sys.argv[0], "<host> <port> <action> <value>")
 #    sys.exit(1)
@@ -54,12 +63,13 @@ def start_comm(host, port, action, value):
                 message = key.data
                 try:
                     message.process_events(mask)
-                except Exception:
+                except Exception as e:
                     print(
                         "main: error: exception for",
                         f"{message.addr}:\n{traceback.format_exc()}",
                     )
                     message.close()
+                    raise e #Tira nuevamente la excepción para que el bloque try - except en la llamada a start_comm en Runtrack.py la atrape y no tire la aplicación.
             # Check for a socket being monitored to continue.
             if not sel.get_map():
                 break

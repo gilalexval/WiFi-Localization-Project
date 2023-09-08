@@ -1,0 +1,1 @@
+C:\Users\UU067ZU\AppData\Local\Programs\Python\Python38-32\Scripts\pyinstaller.exe --onefile --console -w .\ServerSide\MonitorFicherosSidis.py
